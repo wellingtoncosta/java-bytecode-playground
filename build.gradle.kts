@@ -16,6 +16,7 @@ repositories {
 
 dependencies {
     implementation("org.javassist:javassist:3.24.0-GA")
+    implementation("com.squareup:javapoet:1.11.1")
 }
 
 tasks.withType<Jar> {
