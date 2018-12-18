@@ -3,6 +3,8 @@ package br.com.wellingtoncosta.javabytecode.playgroud.codegen;
 import br.com.wellingtoncosta.javabytecode.playgroud.annotation.MainMethod;
 import com.squareup.javapoet.MethodSpec;
 import javassist.*;
+import javassist.bytecode.AnnotationsAttribute;
+import javassist.bytecode.ClassFile;
 import javassist.bytecode.annotation.Annotation;
 
 import java.lang.instrument.ClassFileTransformer;
@@ -30,28 +32,33 @@ public class MainMethodTransformer implements ClassFileTransformer {
         try {
             pool.insertClassPath(new ByteArrayClassPath(className, classfileBuffer));
             CtClass ctClass = pool.get(className.replaceAll("/", "."));
-            if (!ctClass.isFrozen()) {
-                System.out.println("The current class is " + ctClass.getName());
 
-                for(Object annotation : ctClass.getAnnotations()) {
-                    System.out.println("The annotation " + annotation + " is present.");
+            if (!ctClass.isFrozen()) {
+                Annotation annotation = isAnnotationPresent(ctClass);
+
+                if(annotation == null) {
+                    return null;
                 }
+
+                System.out.println("Processing class " + ctClass.getName());
 
                 checkIfMainMethodIsPresent(ctClass);
-
-                Annotation annotation = (Annotation) ctClass.getAnnotation(MainMethod.class);
-                if (annotation != null) {
-                    System.out.println("***** Creating method main method in class " + ctClass.getName() + " *****");
-                    String message = ((MainMethod) annotation).message();
-                    createMainMethodBlock(ctClass, message);
-                }
-
-                return ctClass.toBytecode();
+                Object annotationType = annotation.toAnnotationType(ClassLoader.getSystemClassLoader(), pool);
+                createMainMethodBlock(ctClass, ((MainMethod)annotationType).message());
             }
+
+            return ctClass.toBytecode();
         } catch (Exception e) {
             e.printStackTrace(System.err);
         }
         return null;
+    }
+
+    private static Annotation isAnnotationPresent(CtClass ctClass) {
+        ClassFile classFile = ctClass.getClassFile();
+        String visibleTag = AnnotationsAttribute.visibleTag;
+        AnnotationsAttribute attribute = (AnnotationsAttribute) classFile.getAttribute(visibleTag);
+        return attribute != null ? attribute.getAnnotation(MainMethod.class.getName()) : null;
     }
 
     private static void checkIfMainMethodIsPresent(CtClass ctClass) throws UnsupportedOperationException {
@@ -59,7 +66,7 @@ public class MainMethodTransformer implements ClassFileTransformer {
         for (CtMethod method : methods) {
             if (method.getName().equals(MAIN_METHOD_NAME)) {
                 throw new UnsupportedOperationException(
-                        "Unable to generate main method because it already exists in class " + ctClass.getName() + "."
+                        "Unable to generate main method because it already exists in " + ctClass.getName() + " class."
                 );
             }
         }

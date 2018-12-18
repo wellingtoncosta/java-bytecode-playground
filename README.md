@@ -4,9 +4,27 @@ A playground project about Java Bytecode runtime manipulation. For study purpose
 
 ### Examples
 
+#### The famous "Hello, World!"
+
+This project exposes an annotation called ```@MainMethod``` and it must be applied on classes. When you annotate a class with ```@MainMethod```, this library will generate a main method into the class that prints a message in console. The default message is "Hello, World!", but you can pass a custom message to annotation that will be printed in console. If the annotated class already contains the main method, an exception will be thrown.
+
+Ex.:
+
+```java
+    @MainMethod public class HelloWorld {
+    
+    }
+```
+
+```java
+    @MainMethod(message = "Hi!") public class HelloWorld {
+    
+    }
+```
+
 #### Profiling method execution
 
-This project has an annotation ```@Profiling``` that must be applied on methods. When annotate a method with ```@Profiling```, this library will measure the execution time of the annotated method by just getting the current milliseconds at the begining of the method, and getting the current milliseconds at the end of method and then calculates the difference beetwen initial milliseconds and final milliseconds. The result will be printed in console.
+This project exposes an annotation called ```@Profiling``` and it must be applied on methods. When you annotate a method with ```@Profiling```, this library will measure the execution time of the annotated method by getting the current milliseconds at the begining of the method and at the end of method, and then calculates the difference beetwen initial milliseconds and final milliseconds. The result will be printed in console.
 
 Ex.:
 
