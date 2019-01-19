@@ -25,7 +25,6 @@ tasks.withType<Jar> {
     }
 
     manifest.apply {
-        attributes["Premain-Class"] = "br.com.wellingtoncosta.javabytecode.playgroud.agent.MethodProfilingAgent"
-        attributes["Premain-Class"] = "br.com.wellingtoncosta.javabytecode.playgroud.agent.MainMethodAgent"
+        attributes["Premain-Class"] = "br.com.wellingtoncosta.javabytecode.playgroud.Agent"
     }
 }
